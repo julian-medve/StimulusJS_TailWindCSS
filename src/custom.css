@@ -1,0 +1,15 @@
+#chart-control > #chart-title{
+    font-size: 1.5em;
+    color:white;
+}
+
+.chart-container{
+    background-color: #423d3d; 
+    width:300px;
+    height: 250px;
+    border: 1px solid gray;
+}
+
+.chart-section{
+    background-color: #1E1E1E;
+}

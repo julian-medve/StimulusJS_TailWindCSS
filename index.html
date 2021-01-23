@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="A Stimulus controller to deal with chart.js." />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://unpkg.com/tailwindcss@^2.0/dist/tailwind.min.css" rel="stylesheet" />
+
+    <title>Stimulus Chartjs</title>
+
+    <script type="module" defer>
+      import { Application } from 'stimulus'
+      import Chart from './src/index.js'
+    </script>
+
+    <link rel="stylesheet" href="./src/custom.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+  </head>
+  <body>
+    
+    <div class="relative h-full max-w-5xl mx-auto text-center">
+      <section class="pl-12 pr-12 pb-12 pt-6 text-center chart-section">
+        <div id="chart-control" class="ml-6 mr-6 mb-6">
+          <div id="chart-title">Inkjet Printer</div>
+          <div class="mt-3">
+            <select id="chart-control-select">
+            </select>
+          </div>
+        </div>
+        <div
+          data-controller="chart" class="chart-container">
+          <canvas data-chart-target="canvas" class="p-4" id="chart_canvas"></canvas>
+        </div>
+
+      </section>
+    </div>
+  </body>
+</html>
+
+<script>
+
+var chartData = {
+  name: "Inkjet Printer",
+  impacts: {
+    climate_change: {
+      production: 45,
+      distribution: 23,
+      use: 12,
+      end_of_life: 5
+    },
+    energy_use: {
+      production: 32,
+      distribution: 5,
+      use: 28,
+      end_of_life: 1
+    }
+  }
+}
+
+var chart_data = {
+  labels: ['Red', 'Blue', 'Yellow', 'Green', ],
+  datasets: [{
+      label: 'Inkjet Printer',
+      data: [4, 3, 2, 1],
+      backgroundColor: [
+          'rgba(255, 0, 0, 1.0)',
+          'rgba(255, 154, 0, 1.0)',
+          'rgba(255, 255, 255, 1.0)',
+          'rgba(0, 251, 255, 1.0)',
+      ],
+      
+      borderColor: [
+        'rgba(54, 162, 235, 1)',
+        'rgba(54, 162, 235, 1)',
+        'rgba(54, 162, 235, 1)',
+        'rgba(54, 162, 235, 1)',
+      ],
+      borderWidth: 1
+    },]
+}
+
+var chart_options = {
+  scales: {
+    xAxes: [{
+        gridLines: {
+            display:false,
+        },
+        ticks: {
+          fontColor:'white',
+          fontSize:20,
+        },
+        barPercentage: 0.6
+    }],
+    yAxes: [{
+        gridLines: {
+            display:false
+        },
+        ticks: {
+          display: false,
+          beginAtZero: true,
+        },
+    }]
+  },
+  legend: {
+    labels: {
+        // This more specific font property overrides the global property
+        fontColor: 'white',
+        fontSize:10
+    },
+    display: false
+  },
+  responsive: true,
+  maintainAspectRatio: false
+}
+
+
+$(document).ready(function(){
+
+  $("#chart-title").html(chartData.name);
+  var titles = [];
+  var data = [];
+
+  for (const [key, value] of Object.entries(chartData.impacts)) {
+    titles.push(key);
+    console.log(key);
+    data[key] = value;
+  }
+
+  // Get Option values from JSON data
+  var select_content= "";
+  titles.forEach(function(title){
+    select_content += '<option value="' + title + '">' + title + '</option>';
+  });
+  $("#chart-control-select").html(select_content);
+
+  // Chart Update every when select box would be changed.
+  $("#chart-control-select").change(function(){
+    var selected = $("#chart-control-select").val();
+    var tempData = data[selected];
+    chart_data.datasets[0]["data"] = Object.values(tempData);
+    chart_data.labels = getChartLabelJson(Object.keys(tempData));
+
+    var ctx = document.getElementById("chart_canvas").getContext('2d');
+    var chart = new Chart(ctx, {
+        // The type of chart we want to create
+        type: 'bar',
+
+        // The data for our dataset
+        data: chart_data,
+
+        // Configuration options go here
+        options: chart_options
+    });
+  });
+
+  $("#chart-control-select").val(titles[0]);
+  $("#chart-control-select").change();
+})
+
+function getChartDataJson(jsonData){
+  console.log(jsonData.production);
+  var data = [];
+  jsonData.foreach(function(value){
+    data.push(value);
+  });
+
+  return data;
+}
+
+function getChartLabelJson(jsonData){
+  var data = [];
+  jsonData.forEach(function(value){
+    data.push(value[0].toUpperCase())
+  });
+  return data;
+}
+</script>
